@@ -100,10 +100,35 @@
         <h2>3. Historical ETc vs Measured ETc</h2>
         <canvas id="etcChart"></canvas>
     </div>
+    <hr>
+
+    <h1>Compare Full Years</h1>
+
+    <div class="form-grid">
+        <input type="number" id="fullYear1" value="2025" placeholder="Year 1">
+        <input type="number" id="fullYear2" value="2026" placeholder="Year 2">
+        <button onclick="loadYearComparison()">Compare Full Years</button>
+    </div>
+
+    <div class="big-chart-card">
+        <h2>4. Full Year Air Temperature Comparison</h2>
+        <canvas id="yearAirTempChart"></canvas>
+    </div>
+
+    <div class="big-chart-card">
+        <h2>5. Full Year ETo Comparison</h2>
+        <canvas id="yearEtoChart"></canvas>
+    </div>
+
+    <div class="big-chart-card">
+        <h2>6. Full Year ETc Comparison</h2>
+        <canvas id="yearEtcChart"></canvas>
+    </div>
 </div>
 
 <script>
 let airTempChart, etoChart, etcChart;
+let yearAirTempChart, yearEtoChart, yearEtcChart;
 let trees = [];
 
 function destroyChart(chart) {
@@ -129,12 +154,14 @@ function addTree() {
     document.getElementById('treeCount').value = "";
     renderTrees();
     loadComparison();
+    loadYearComparison(); // ✅ full year charts refresh
 }
 
 function deleteTree(index) {
     trees.splice(index, 1);
     renderTrees();
     loadComparison();
+    loadYearComparison(); // ✅ full year charts refresh
 }
 
 function renderTrees() {
@@ -166,13 +193,19 @@ async function loadComparison() {
 
     const hist = data.historical || [];
     const meas = data.measurements || [];
+    const fallbackHist = data.fallback_historical || [];
+    const sourceUsed = data.source_used || "historical";
     const factor = data.tree_factor || 0;
+    const weightedKc = data.weighted_kc || 0;
+    const treeCount = data.tree_count || 0;
 
-    document.getElementById("treeFactorBox").innerHTML = `Total Kc × Count Factor = ${factor}`;
+    document.getElementById("treeFactorBox").innerHTML =
+        `Weighted Kc = ${weightedKc} | Total Trees = ${treeCount} | Total Kc × Count = ${factor}`;
 
+    const compareData = sourceUsed === "measured" ? meas : fallbackHist;
     const days = [...new Set([
         ...hist.map(x => parseInt(x.day)),
-        ...meas.map(x => parseInt(x.day))
+        ...compareData.map(x => parseInt(x.day))
     ])].sort((a, b) => a - b);
 
     if (days.length === 0) {
@@ -182,17 +215,27 @@ async function loadComparison() {
 
     // ===== DATA =====
     const histAvgTemp = days.map(day => getValueByDay(hist, day, 'avg_temp'));
-    const measAvgTemp = days.map(day => getValueByDay(meas, day, 'avg_temp'));
+    const compareAvgTemp = sourceUsed === "measured"
+        ? days.map(day => getValueByDay(meas, day, 'avg_temp'))
+        : days.map(day => getValueByDay(fallbackHist, day, 'avg_temp'));
 
     const histETo = days.map(day => getValueByDay(hist, day, 'eto_hist'));
-    const measETo = days.map(day => getValueByDay(meas, day, 'eto'));
+    const compareETo = sourceUsed === "measured"
+        ? days.map(day => getValueByDay(meas, day, 'eto'))
+        : days.map(day => getValueByDay(fallbackHist, day, 'eto_hist'));
 
     const histETc = days.map(day => getValueByDay(hist, day, 'etc_hist'));
-    const measETc = days.map(day => getValueByDay(meas, day, 'etc_calc'));
-
+    const compareETc = sourceUsed === "measured"
+        ? days.map(day => getValueByDay(meas, day, 'etc_calc'))
+        : days.map(day => getValueByDay(fallbackHist, day, 'etc_hist'));
+        
     destroyChart(airTempChart);
     destroyChart(etoChart);
     destroyChart(etcChart);
+
+    // const compareLabel = sourceUsed === "measured"
+    //     ? `Measured ${year2}`
+    //     : `Historical ${year2}`;
 
     // ===== 1. AIR TEMP =====
     airTempChart = new Chart(document.getElementById('airTempChart'), {
@@ -201,7 +244,7 @@ async function loadComparison() {
             labels: days,
             datasets: [
                 {
-                    label: `Historical ${year1} Avg Temp`,
+                    label: `${year1} Avg Temp`,
                     data: histAvgTemp,
                     borderColor: 'blue',
                     backgroundColor: 'blue',
@@ -210,8 +253,8 @@ async function loadComparison() {
                     borderWidth: 3
                 },
                 {
-                    label: `Measured ${year2} Avg Temp`,
-                    data: measAvgTemp,
+                    label: `${year2} Avg Temp`,
+                    data: compareAvgTemp,
                     borderColor: 'red',
                     backgroundColor: 'red',
                     fill: false,
@@ -238,7 +281,7 @@ async function loadComparison() {
             labels: days,
             datasets: [
                 {
-                    label: `Historical ${year1} ETo`,
+                    label: `${year1} ETo`,
                     data: histETo,
                     borderColor: 'green',
                     backgroundColor: 'green',
@@ -247,8 +290,8 @@ async function loadComparison() {
                     borderWidth: 3
                 },
                 {
-                    label: `Measured ${year2} ETo`,
-                    data: measETo,
+                    label: `${year2} ETo`,
+                    data: compareETo,
                     borderColor: 'purple',
                     backgroundColor: 'purple',
                     fill: false,
@@ -275,7 +318,7 @@ async function loadComparison() {
             labels: days,
             datasets: [
                 {
-                    label: `Historical ${year1} ETc`,
+                    label: `${year1} ETc`,
                     data: histETc,
                     borderColor: 'orange',
                     backgroundColor: 'orange',
@@ -284,8 +327,8 @@ async function loadComparison() {
                     borderWidth: 3
                 },
                 {
-                    label: `Measured ${year2} ETc`,
-                    data: measETc,
+                    label: `${year2} ETc`,
+                    data: compareETc,
                     borderColor: 'brown',
                     backgroundColor: 'brown',
                     fill: false,
@@ -306,9 +349,163 @@ async function loadComparison() {
     });
 }
 
+async function loadYearComparison() {
+    const year1 = document.getElementById('fullYear1').value;
+    const year2 = document.getElementById('fullYear2').value;
+
+    const treesEncoded = encodeURIComponent(JSON.stringify(trees));
+
+    const res = await fetch(`api/compare_years.php?year1=${year1}&year2=${year2}&trees=${treesEncoded}`);
+    const data = await res.json();
+
+    const year1Data = data.year1_data || [];
+    const year2Data = data.year2_data || [];
+    const factor = data.tree_factor || 0;
+
+    const labels = [...new Set([
+        ...year1Data.map(x => x.label),
+        ...year2Data.map(x => x.label)
+    ])];
+
+    if (labels.length === 0) {
+        alert("⚠️ No yearly data found.");
+        return;
+    }
+
+    function getValueByLabel(arr, label, key) {
+        let item = arr.find(x => x.label === label);
+        return item && item[key] !== null ? parseFloat(item[key]) : null;
+    }
+
+    const year1AvgTemp = labels.map(label => getValueByLabel(year1Data, label, 'avg_temp'));
+    const year2AvgTemp = labels.map(label => getValueByLabel(year2Data, label, 'avg_temp'));
+
+    const year1ETo = labels.map(label => getValueByLabel(year1Data, label, 'eto'));
+    const year2ETo = labels.map(label => getValueByLabel(year2Data, label, 'eto'));
+
+    const year1ETc = labels.map(label => getValueByLabel(year1Data, label, 'etc'));
+    const year2ETc = labels.map(label => getValueByLabel(year2Data, label, 'etc'));
+
+    destroyChart(yearAirTempChart);
+    destroyChart(yearEtoChart);
+    destroyChart(yearEtcChart);
+
+    // ===== FULL YEAR AIR TEMP =====
+    yearAirTempChart = new Chart(document.getElementById('yearAirTempChart'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: `${year1} Avg Temp`,
+                    data: year1AvgTemp,
+                    borderColor: 'blue',
+                    backgroundColor: 'blue',
+                    fill: false,
+                    tension: 0.3,
+                    borderWidth: 3
+                },
+                {
+                    label: `${year2} Avg Temp`,
+                    data: year2AvgTemp,
+                    borderColor: 'red',
+                    backgroundColor: 'red',
+                    fill: false,
+                    tension: 0.3,
+                    borderWidth: 3
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'top' } },
+            scales: {
+                x: { title: { display: true, text: 'Month-Day' } },
+                y: { title: { display: true, text: 'Temperature (°C)' } }
+            }
+        }
+    });
+
+    // ===== FULL YEAR ETO =====
+    yearEtoChart = new Chart(document.getElementById('yearEtoChart'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: `${year1} ETo`,
+                    data: year1ETo,
+                    borderColor: 'green',
+                    backgroundColor: 'green',
+                    fill: false,
+                    tension: 0.3,
+                    borderWidth: 3
+                },
+                {
+                    label: `${year2} ETo`,
+                    data: year2ETo,
+                    borderColor: 'purple',
+                    backgroundColor: 'purple',
+                    fill: false,
+                    tension: 0.3,
+                    borderWidth: 3
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'top' } },
+            scales: {
+                x: { title: { display: true, text: 'Month-Day' } },
+                y: { title: { display: true, text: 'ETo (mm/day)' } }
+            }
+        }
+    });
+
+    // ===== FULL YEAR ETC =====
+    yearEtcChart = new Chart(document.getElementById('yearEtcChart'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: `${year1} ETc`,
+                    data: year1ETc,
+                    borderColor: 'orange',
+                    backgroundColor: 'orange',
+                    fill: false,
+                    tension: 0.3,
+                    borderWidth: 3
+                },
+                {
+                    label: `${year2} ETc`,
+                    data: year2ETc,
+                    borderColor: 'brown',
+                    backgroundColor: 'brown',
+                    fill: false,
+                    tension: 0.3,
+                    borderWidth: 3
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'top' } },
+            scales: {
+                x: { title: { display: true, text: 'Month-Day' } },
+                y: { title: { display: true, text: 'ETc (mm/day)' } }
+            }
+        }
+    });
+}
+
 window.onload = () => {
     renderTrees();
     loadComparison();
+    loadYearComparison();
 };
 </script>
 
