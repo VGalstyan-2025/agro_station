@@ -15,7 +15,8 @@ $sql = "SELECT
             accuracy_percent_etc
         FROM forecast_history
         WHERE actual_eto IS NOT NULL AND actual_eto > 0
-        ORDER BY target_date DESC, id DESC
+        GROUP BY target_date
+        ORDER BY target_date ASC
         LIMIT 4";
 
 $result = $conn->query($sql);
