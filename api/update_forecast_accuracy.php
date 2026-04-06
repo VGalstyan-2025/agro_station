@@ -59,13 +59,13 @@ if (
             // ===== UPDATE =====
             $update = "UPDATE forecast_history SET
                         actual_eto = ?,
-                        actual_etc = ?,
+                        actual_etc = 0,
                         abs_error_eto = ?,
                         error_percent_eto = ?,
                         accuracy_percent_eto = ?,
-                        abs_error_etc = ?,
-                        error_percent_etc = ?,
-                        accuracy_percent_etc = ?
+                        abs_error_etc = 0,
+                        error_percent_etc = 0,
+                        accuracy_percent_etc = 0
                        WHERE id = ?";
 
             $stmt2 = $conn->prepare($update);

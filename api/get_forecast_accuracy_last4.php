@@ -10,6 +10,7 @@ header('Content-Type: application/json');
 $sqlDates = "SELECT DISTINCT target_date
              FROM forecast_history
              WHERE actual_eto IS NOT NULL
+             AND target_date <= CURDATE()
              ORDER BY target_date DESC
              LIMIT 4";
 
