@@ -46,6 +46,8 @@
 <body>
 
 <div class="container">
+     <a href="index.php"><img src="icon/pngtree-blue-home-icon-or-button-for-webside-png-image_12500532.png" alt="icon" style="width:50px"></a>
+
     <h1>Compare Historical vs Measured Data</h1>
 
     <div class="form-grid">

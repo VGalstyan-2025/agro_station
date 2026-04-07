@@ -10,7 +10,7 @@ if (
     $actual_eto = floatval($_POST['actual_eto']);
     $actual_etc = floatval($_POST['actual_etc']);
 
-    // 👉 ԲՈԼՈՐ forecast-ները target_date-ի համար
+    // Բոլոր forecast-ները այս target_date-ի համար
     $sql = "SELECT id, forecast_eto, forecast_etc
             FROM forecast_history
             WHERE target_date = ?
@@ -25,32 +25,49 @@ if (
 
         while ($row = $result->fetch_assoc()) {
 
-            $id = $row['id'];
+            $id = intval($row['id']);
             $forecast_eto = floatval($row['forecast_eto']);
             $forecast_etc = floatval($row['forecast_etc']);
 
             // ===== ETo =====
             $abs_error_eto = abs($actual_eto - $forecast_eto);
 
-            if ($actual_etc > 0 && $forecast_etc > 0) {
-                $base = max($actual_etc, $forecast_etc);
+            if ($actual_eto > 0 || $forecast_eto > 0) {
+                $base_eto = max($actual_eto, $forecast_eto);
 
-                $error_percent_etc = ($abs_error_etc / $base) * 100.0;
-                $accuracy_percent_etc = 100.0 - $error_percent_etc;
+                if ($base_eto > 0) {
+                    $error_percent_eto = ($abs_error_eto / $base_eto) * 100.0;
+                    $accuracy_percent_eto = 100.0 - $error_percent_eto;
 
-                if ($accuracy_percent_etc < 0) $accuracy_percent_etc = 0;
+                    if ($accuracy_percent_eto < 0) {
+                        $accuracy_percent_eto = 0;
+                    }
+                } else {
+                    $error_percent_eto = 0;
+                    $accuracy_percent_eto = 0;
+                }
             } else {
-                $error_percent_etc = 0;
-                $accuracy_percent_etc = 0;
+                $error_percent_eto = 0;
+                $accuracy_percent_eto = 0;
             }
 
             // ===== ETc =====
             $abs_error_etc = abs($actual_etc - $forecast_etc);
 
-            if ($actual_etc > 0) {
-                $error_percent_etc = ($abs_error_etc / $actual_etc) * 100.0;
-                $accuracy_percent_etc = 100.0 - $error_percent_etc;
-                if ($accuracy_percent_etc < 0) $accuracy_percent_etc = 0;
+            if ($actual_etc > 0 || $forecast_etc > 0) {
+                $base_etc = max($actual_etc, $forecast_etc);
+
+                if ($base_etc > 0) {
+                    $error_percent_etc = ($abs_error_etc / $base_etc) * 100.0;
+                    $accuracy_percent_etc = 100.0 - $error_percent_etc;
+
+                    if ($accuracy_percent_etc < 0) {
+                        $accuracy_percent_etc = 0;
+                    }
+                } else {
+                    $error_percent_etc = 0;
+                    $accuracy_percent_etc = 0;
+                }
             } else {
                 $error_percent_etc = 0;
                 $accuracy_percent_etc = 0;
@@ -59,13 +76,13 @@ if (
             // ===== UPDATE =====
             $update = "UPDATE forecast_history SET
                         actual_eto = ?,
-                        actual_etc = 0,
+                        actual_etc = ?,
                         abs_error_eto = ?,
                         error_percent_eto = ?,
                         accuracy_percent_eto = ?,
-                        abs_error_etc = 0,
-                        error_percent_etc = 0,
-                        accuracy_percent_etc = 0
+                        abs_error_etc = ?,
+                        error_percent_etc = ?,
+                        accuracy_percent_etc = ?
                        WHERE id = ?";
 
             $stmt2 = $conn->prepare($update);
@@ -88,7 +105,7 @@ if (
 
         echo "✅ Accuracy updated for ALL forecasts (target_date = $target_date)";
     } else {
-        echo "❌ No forecasts found";
+        echo "❌ No forecasts found for target_date = $target_date";
     }
 
     $stmt->close();
