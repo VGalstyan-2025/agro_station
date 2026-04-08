@@ -18,15 +18,13 @@ $kcTable = [
     "Forest" => ["Initial" => 0.90, "Middle" => 0.95, "End" => 0.95]
 ];
 
-// ===== GET TREES =====
 $treesJson = $_GET['trees'] ?? '[]';
 $trees = json_decode($treesJson, true);
 if (!is_array($trees)) $trees = [];
 
-// ===== KC FACTORS =====
-$totalFactor = 0;      // Kc × Count
-$totalTreeCount = 0;   // total trees
-$weightedKc = 0;       // average Kc for ETc graph
+$totalFactor = 0;      
+$totalTreeCount = 0;   
+$weightedKc = 0;       
 
 foreach ($trees as $tree) {
     $type = $tree['type'] ?? '';

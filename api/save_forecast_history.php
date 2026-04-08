@@ -17,14 +17,12 @@ if (
     $forecast_eto = floatval($_POST['forecast_eto']);
     $forecast_etc = floatval($_POST['forecast_etc']);
 
-    // ===== DEBUG =====
     error_log("save_forecast_history.php called");
     error_log("target_date = [$target_date]");
     error_log("predicted_on = [$predicted_on]");
     error_log("forecast_eto = [$forecast_eto]");
     error_log("forecast_etc = [$forecast_etc]");
 
-    // ===== Validate dates =====
     if (!isValidDate($target_date)) {
         die("❌ Invalid target_date: [$target_date]");
     }
@@ -33,7 +31,6 @@ if (
         die("❌ Invalid predicted_on: [$predicted_on]");
     }
 
-    // ===== Optional: reject zero forecast =====
     if ($forecast_eto <= 0) {
         die("❌ Invalid forecast_eto");
     }

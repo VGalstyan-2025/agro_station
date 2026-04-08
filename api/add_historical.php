@@ -20,7 +20,6 @@ $id = $_POST['id'] ?? null;
 header('Content-Type: application/json');
 
 if ($id) {
-    // UPDATE
     $stmt = $conn->prepare("UPDATE historical_weather SET
         avg_temp=?, max_temp=?, min_temp=?, pressure=?, humidity=?, wind_max=?, cloudiness=?, precipitation=?, sun_hours=?
         WHERE id=?");
@@ -32,7 +31,6 @@ if ($id) {
         $id
     );
 } else {
-    // INSERT
     $stmt = $conn->prepare("INSERT INTO historical_weather 
         (year, month, day, avg_temp, max_temp, min_temp, pressure, humidity, wind_max, cloudiness, precipitation, sun_hours)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");

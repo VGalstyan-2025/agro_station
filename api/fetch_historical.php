@@ -3,11 +3,9 @@ include("../config/db.php");
 
 set_time_limit(0);
 
-// ===== CONFIG =====
 $lat = 40.878;   // Ijevan
 $lon = 45.148;
 
-// ===== cURL FETCH FUNCTION =====
 function fetchWeatherRange($start, $end, $lat, $lon) {
 
     $url = "https://archive-api.open-meteo.com/v1/archive?latitude=$lat&longitude=$lon&start_date=$start&end_date=$end&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,sunshine_duration&timezone=auto";
@@ -17,7 +15,6 @@ function fetchWeatherRange($start, $end, $lat, $lon) {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
-    // SSL FIX (XAMPP)
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
@@ -34,17 +31,14 @@ function fetchWeatherRange($start, $end, $lat, $lon) {
     return json_decode($response, true);
 }
 
-// ===== DATE RANGE =====
 $startDate = new DateTime("2025-01-01");
 $endDate   = new DateTime("2026-04-01");
 
-// ===== LOOP BY MONTH =====
 while ($startDate <= $endDate) {
 
     $monthStart = $startDate->format("Y-m-01");
     $monthEnd   = $startDate->format("Y-m-t");
 
-    // եթե վերջը անցնում է վերջնական date-ից
     if ($monthEnd > $endDate->format("Y-m-d")) {
         $monthEnd = $endDate->format("Y-m-d");
     }
@@ -79,7 +73,6 @@ while ($startDate <= $endDate) {
 
         $avg = ($max !== null && $min !== null) ? ($max + $min) / 2 : null;
 
-        // ===== CHECK DUPLICATE =====
         $check = $conn->query("
             SELECT id FROM historical_weather 
             WHERE year=$year AND month=$month AND day=$day
@@ -108,10 +101,8 @@ while ($startDate <= $endDate) {
         }
     }
 
-    // հաջորդ ամիս
     $startDate->modify("+1 month");
 
-    // փոքր delay (API safe)
     usleep(200000);
 }
 

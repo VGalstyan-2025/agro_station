@@ -11,7 +11,6 @@
 <div class="container">
     <h1>Historical Weather Data Entry</h1>
 
-    <!-- Form առանց action, id="historicalForm" -->
     <form id="historicalForm" class="form-grid">    
         <input type="number" name="year" oninput="loadExisting()" placeholder="Year" required>
         <input type="number" name="month" oninput="loadExisting()" placeholder="Month" required>
@@ -36,7 +35,12 @@
 
     <table id="historicalTable">
         <tr>
-            <th>ID</th>
+            <th>
+                ID 
+                <span id="sortIcon" style="cursor:pointer;" onclick="sortTableById()">
+                    🔽
+                </span>
+            </th>
             <th>Date</th>
             <th>Avg</th>
             <th>Max</th>
@@ -75,7 +79,28 @@
 </div>
 
 <script>
-// ===== AUTO LOAD EXISTING =====
+let sortAsc = false;
+
+function sortTableById() {
+    const table = document.getElementById("historicalTable");
+    const rows = Array.from(table.rows).slice(1); 
+
+    sortAsc = !sortAsc;
+
+    rows.sort((a, b) => {
+        const idA = parseInt(a.cells[0].innerText);
+        const idB = parseInt(b.cells[0].innerText);
+
+        return sortAsc ? idA - idB : idB - idA;
+    });
+
+    rows.forEach(row => table.appendChild(row));
+
+    const icon = document.getElementById("sortIcon");
+    if (icon) {
+        icon.innerText = sortAsc ? "🔼" : "🔽";
+    }
+}
 async function loadExisting() {
     const year = document.querySelector('[name="year"]').value;
     const month = document.querySelector('[name="month"]').value;
@@ -105,7 +130,6 @@ async function loadExisting() {
     }
 }
 
-// ===== AJAX SAVE =====
 document.getElementById("historicalForm").addEventListener("submit", async function(e) {
     e.preventDefault();
 
@@ -120,7 +144,6 @@ document.getElementById("historicalForm").addEventListener("submit", async funct
 
     if (data.status === "success") {
         alert("✅ Saved successfully!");
-        // Update table live (optional: for simplicity, reload)
         location.reload();
     } else {
         alert("❌ Error: " + data.message);

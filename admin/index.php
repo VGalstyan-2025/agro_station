@@ -35,8 +35,8 @@
         </div>
 
         <div class="card">
-            <h2>Latest ETc</h2>
-            <p><?php echo $latest ? $latest['etc_value'] . " mm/day" : "-"; ?></p>
+            <h2>Latest ETo</h2>
+            <p><?php echo $latest ? $latest['eto'] . " mm/day" : "-"; ?></p>
         </div>
     </div>
 </div>

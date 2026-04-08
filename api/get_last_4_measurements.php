@@ -19,7 +19,6 @@ while ($row = $result->fetch_assoc()) {
     $data[] = $row;
 }
 
-// reverse որ հինից նոր լինի
 $data = array_reverse($data);
 
 echo json_encode($data);

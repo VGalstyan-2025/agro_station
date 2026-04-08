@@ -3,10 +3,6 @@ include("../config/db.php");
 
 header('Content-Type: application/json');
 
-// =============================
-// 1) Վերցնում ենք վերջին 4 target_date-ները,
-// որոնց actual_eto կա
-// =============================
 $sqlDates = "SELECT DISTINCT target_date
              FROM forecast_history
              WHERE actual_eto IS NOT NULL
@@ -21,13 +17,8 @@ while ($row = mysqli_fetch_assoc($resultDates)) {
     $targetDates[] = $row['target_date'];
 }
 
-// Քանի որ DESC-ով ենք վերցրել, շրջում ենք որ հինից նոր լինի
 $targetDates = array_reverse($targetDates);
 
-// =============================
-// 2) Ամեն target_date-ի համար
-// բերում ենք բոլոր forecasts-ը
-// =============================
 $output = [];
 
 foreach ($targetDates as $date) {

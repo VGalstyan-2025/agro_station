@@ -10,7 +10,6 @@ if (
     $actual_eto = floatval($_POST['actual_eto']);
     $actual_etc = floatval($_POST['actual_etc']);
 
-    // Բոլոր forecast-ները այս target_date-ի համար
     $sql = "SELECT id, forecast_eto, forecast_etc
             FROM forecast_history
             WHERE target_date = ?
@@ -29,7 +28,7 @@ if (
             $forecast_eto = floatval($row['forecast_eto']);
             $forecast_etc = floatval($row['forecast_etc']);
 
-            // ===== ETo =====
+            //  ETo 
             $abs_error_eto = abs($actual_eto - $forecast_eto);
 
             if ($actual_eto > 0 || $forecast_eto > 0) {
@@ -51,7 +50,7 @@ if (
                 $accuracy_percent_eto = 0;
             }
 
-            // ===== ETc =====
+            //  ETc ]
             $abs_error_etc = abs($actual_etc - $forecast_etc);
 
             if ($actual_etc > 0 || $forecast_etc > 0) {
@@ -73,7 +72,6 @@ if (
                 $accuracy_percent_etc = 0;
             }
 
-            // ===== UPDATE =====
             $update = "UPDATE forecast_history SET
                         actual_eto = ?,
                         actual_etc = ?,

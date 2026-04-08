@@ -1,10 +1,8 @@
 <?php
 include("../config/db.php");
 
-// Օրվա սկիզբ
 $day = date('Y-m-d');
 
-// Հաշվել միջինները
 $sql = "SELECT 
             AVG(air_temp) as air_temp_avg,
             AVG(humidity) as humidity_avg,
@@ -20,7 +18,6 @@ $sql = "SELECT
 $result = $conn->query($sql);
 $summary = $result->fetch_assoc();
 
-// Ստուգել, որ տվյալներ կան
 if ($summary && !empty($summary['air_temp_avg'])) {
     $stmt = $conn->prepare("INSERT INTO measurements_summary 
         (measure_date, air_temp_avg, humidity_avg, water_temp_avg, light_avg, distance_avg, wind_avg, eto_avg, etc_avg) 

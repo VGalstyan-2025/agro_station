@@ -156,14 +156,14 @@ function addTree() {
     document.getElementById('treeCount').value = "";
     renderTrees();
     loadComparison();
-    loadYearComparison(); // ✅ full year charts refresh
+    loadYearComparison(); 
 }
 
 function deleteTree(index) {
     trees.splice(index, 1);
     renderTrees();
     loadComparison();
-    loadYearComparison(); // ✅ full year charts refresh
+    loadYearComparison(); 
 }
 
 function renderTrees() {
@@ -215,7 +215,6 @@ async function loadComparison() {
         return;
     }
 
-    // ===== DATA =====
     const histAvgTemp = days.map(day => getValueByDay(hist, day, 'avg_temp'));
     const compareAvgTemp = sourceUsed === "measured"
         ? days.map(day => getValueByDay(meas, day, 'avg_temp'))
@@ -235,11 +234,6 @@ async function loadComparison() {
     destroyChart(etoChart);
     destroyChart(etcChart);
 
-    // const compareLabel = sourceUsed === "measured"
-    //     ? `Measured ${year2}`
-    //     : `Historical ${year2}`;
-
-    // ===== 1. AIR TEMP =====
     airTempChart = new Chart(document.getElementById('airTempChart'), {
         type: 'line',
         data: {
@@ -276,7 +270,6 @@ async function loadComparison() {
         }
     });
 
-    // ===== 2. ETO =====
     etoChart = new Chart(document.getElementById('etoChart'), {
         type: 'line',
         data: {
@@ -313,7 +306,6 @@ async function loadComparison() {
         }
     });
 
-    // ===== 3. ETC =====
     etcChart = new Chart(document.getElementById('etcChart'), {
         type: 'line',
         data: {

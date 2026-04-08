@@ -103,24 +103,6 @@ if ($conn->query($sql_forecast_history) === TRUE) {
     echo "❌ Error creating forecast_history: " . $conn->error . "<br>";
 }
 
-// $sql_trees = "
-// CREATE TABLE IF NOT EXISTS trees (
-//     id INT AUTO_INCREMENT PRIMARY KEY,
-//     tree_type VARCHAR(100) NOT NULL,
-//     stage VARCHAR(50) NOT NULL,
-//     kc DECIMAL(5,2) NOT NULL,
-//     count INT NOT NULL,
-//     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-// )";
-
-// if ($conn->query($sql_trees) === TRUE) {
-//     echo "✅ Table 'trees' created<br>";
-// } else {
-//     echo "❌ Error creating trees: " . $conn->error . "<br>";
-// }
-
-
-
 echo "<br><h3>🎉 Installation Completed Successfully!</h3>";
 echo "<p><a href='index.php'>➡ Go to Home Page</a></p>";
 
